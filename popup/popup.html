@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>中文词组翻译器</title>
+
+        <style>
+            body {
+                width: 200px;
+                padding: 10px;
+                font-family: Arial, sans-serif;
+            }
+
+            .header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                margin: 0;
+                color: #333;
+                font-size: 18px;
+            }
+
+            .button {
+                display: block;
+                width: 100%;
+                padding: 12px;
+                margin-bottom: 10px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+            }
+
+            .button:hover {
+                background-color: #45a049;
+            }
+
+            .button.secondary {
+                background-color: #f0f0f0;
+                color: #333;
+            }
+
+            .button.secondary:hover {
+                background-color: #e0e0e0;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>中文词组翻译器</h1>
+        </div>
+
+        <button id="toggleTranslation" class="button secondary">插件已启用</button>
+        <button id="openOptions" class="button secondary">打开设置</button>
+
+        <script src="popup.js"></script>
+    </body>
+</html>

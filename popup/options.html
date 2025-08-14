@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>中文词组翻译器设置</title>
+
+        <style>
+            body {
+                width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                font-family: Arial, sans-serif;
+            }
+
+            .section {
+                margin-bottom: 20px;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+
+            .section h3 {
+                margin-top: 0;
+                color: #333;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+            select, input {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                box-sizing: border-box;
+            }
+
+            .button {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+                margin-right: 10px;
+            }
+
+            .button:hover {
+                background-color: #45a049;
+            }
+
+            .button.secondary {
+                background-color: #f0f0f0;
+                color: #333;
+            }
+
+            .button.secondary:hover {
+                background-color: #e0e0e0;
+            }
+
+            .status {
+                margin-top: 10px;
+                padding: 10px;
+                border-radius: 3px;
+                display: none;
+            }
+
+            .status.success {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .status.error {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>中文词组翻译器设置</h2>
+
+        <div class="section">
+            <h3>翻译设置</h3>
+            <div class="form-group">
+                <label for="targetLanguage">目标语言:</label>
+                <select id="targetLanguage">
+                    <option value="en">英语</option>
+                    <option value="ja">日语</option>
+                    <option value="ko">韩语</option>
+                    <option value="fr">法语</option>
+                    <option value="ru">俄语</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="transMode">翻译模式:</label>
+                <select id="transMode">
+                    <option value="1">顺序</option>
+                    <option value="2">并发</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="transInterval">翻译间隔(顺序时):</label>
+                <input type="number" id="transInterval" min="0" value="1000">
+            </div>
+
+            <div class="form-group">
+                <label for="translationFormat">翻译格式:</label>
+                <select id="translationFormat">
+                    <option value="bracket">[中文|翻译]</option>
+                    <option value="parenthesis">(中文|翻译)</option>
+                    <option value="colon">中文: 翻译</option>
+                </select>
+                <div style="margin-top: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 3px; font-size: 12px;">
+                    <strong>预览效果:</strong> <span id="formatPreview">中文词组[Chinese phrase]</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>翻译服务</h3>
+            <div class="form-group">
+                <label for="provider">翻译服务:</label>
+                <select id="provider">
+                    <option value="google">Google</option>
+                    <option value="youdao">有道云翻译</option>
+                    <option value="aliyun">阿里云翻译</option>
+                </select>
+            </div>
+
+            <!-- 有道云翻译配置 -->
+            <div id="youdao-config" class="form-group" style="display:none;">
+                <label>有道云翻译配置:</label>
+                <div style="display:flex; gap:8px; flex-direction:column;">
+                    <input id="youdaoUrl" placeholder="API地址，例如：https://openapi.youdao.com/api"/>
+                    <input id="youdaoAppKey" placeholder="应用ID (AppKey)"/>
+                    <input id="youdaoAppSecret" placeholder="应用密钥 (AppSecret)"/>
+                </div>
+                <p style="margin-top:8px; color:#666; font-size:12px;">提示：请在有道云翻译开放平台申请应用获取AppKey和AppSecret。</p>
+            </div>
+
+            <!-- 阿里云翻译配置 -->
+            <div id="aliyun-config" class="form-group" style="display:none;">
+                <label>阿里云翻译配置:</label>
+                <div style="display:flex; gap:8px; flex-direction:column;">
+                    <input id="aliyunUrl" placeholder="API地址，例如：https://mt.aliyuncs.com"/>
+                    <input id="aliyunAccessKeyId" placeholder="访问密钥ID (AccessKeyId)"/>
+                    <input id="aliyunAccessKeySecret" placeholder="访问密钥 (AccessKeySecret)"/>
+                    <input id="aliyunRegion" placeholder="地域，例如：cn-hangzhou" value="cn-hangzhou"/>
+                </div>
+                <p style="margin-top:8px; color:#666; font-size:12px;">提示：请在阿里云控制台获取AccessKeyId和AccessKeySecret。</p>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <script src="options.js"></script>
+    </body>
+</html>
