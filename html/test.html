@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文词组翻译器测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .chinese-text {
+            background-color: #e8f4fd;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <h1>中文词组翻译器测试页面</h1>
+    
+    <div class="test-section">
+        <h2>中文词组测试</h2>
+        <div class="chinese-text">
+            <p>人工智能技术正在快速发展，机器学习算法变得越来越智能。</p>
+            <p>云计算平台提供了强大的计算能力，大数据分析帮助我们更好地理解世界。</p>
+        </div>
+        <ul>
+            <li>深度学习：神经网络模型</li>
+            <li>区块链：分布式账本技术</li>
+            <li>物联网：智能设备互联</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>混合语言测试</h2>
+        <p>这是一个包含中英文混合的段落：人工智能（AI）和机器学习（Machine Learning）正在改变我们的生活方式。</p>
+        <p>云计算（Cloud Computing）和边缘计算（Edge Computing）为数字化转型提供了技术基础。</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>动态内容测试</h2>
+        <div id="dynamic-content">
+            <p>这是动态加载的中文内容：自然语言处理技术。</p>
+        </div>
+        <button onclick="addDynamicContent()">添加动态内容</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>表单元素测试</h2>
+        <form>
+            <label for="name">姓名：</label>
+            <input type="text" id="name" placeholder="请输入您的姓名">
+            <br><br>
+            <label for="email">邮箱：</label>
+            <input type="email" id="email" placeholder="请输入您的邮箱地址">
+            <br><br>
+            <textarea id="message" placeholder="请输入您的留言内容，支持中文输入" rows="4" cols="50"></textarea>
+        </form>
+    </div>
+    
+    <div class="test-section highlight">
+        <h3>预期效果说明</h3>
+        <p>安装中文词组翻译器插件后，页面上的中文词组应该被翻译并显示为以下格式之一：</p>
+        <ul>
+            <li><strong>方括号格式</strong>：人工智能[::artificial intelligence]</li>
+            <li><strong>圆括号格式</strong>：机器学习(machine learning)</li>
+            <li><strong>冒号格式</strong>：深度学习: deep learning</li>
+        </ul>
+        <p>注意：翻译格式可以在插件设置中更改，输入框的placeholder文本也会被翻译。</p>
+    </div>  
+</body>
+
+<script>
+    function addDynamicContent() {
+        const container = document.getElementById('dynamic-content');
+        const newDiv = document.createElement('div');
+        newDiv.innerHTML = '<p>这是新添加的动态内容：计算机视觉技术 ' + new Date().toLocaleString() + '</p>';
+        container.appendChild(newDiv);
+    }
+    
+    // 页面加载完成后显示提示
+    window.addEventListener('load', function() {
+        console.log('中文词组翻译器测试页面加载完成，插件应该开始工作');
+        console.log('请检查页面上的中文词组是否被正确翻译');
+    });
+</script>
+</html> 
