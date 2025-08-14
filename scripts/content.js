@@ -356,7 +356,6 @@
             chrome.storage.local.set({[token]: translation});
             return translation;
         } catch (error) {
-            console.error(`翻译词"${token}"失败:`, error);
             return token;
         }
     }
