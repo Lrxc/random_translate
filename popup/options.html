@@ -88,6 +88,8 @@
     <body>
         <h2>中文词组翻译器设置</h2>
 
+        <div class="status" id="status"></div>
+
         <div class="section">
             <h3>翻译设置</h3>
             <div class="form-group">
@@ -102,6 +104,36 @@
             </div>
 
             <div class="form-group">
+                <label for="translationFormat">翻译格式:</label>
+                <select id="translationFormat">
+                    <option value="bracket">[中文|翻译]</option>
+                    <option value="parenthesis">(中文|翻译)</option>
+                    <option value="colon">中文: 翻译</option>
+                </select>
+                <div style="margin-top: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 3px; font-size: 12px;">
+                    <strong>预览效果:</strong> <span id="formatPreview">中文词组[Chinese phrase]</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="translationRatio">翻译比例:</label>
+                <select id="translationRatio">
+                    <option value="100">100%</option>
+                    <option value="80">80%</option>
+                    <option value="50">50%</option>
+                    <option value="30">30%</option>
+                    <option value="10">10%</option>
+                </select>
+                <div style="margin-top: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 3px; font-size: 12px;">
+                    <strong>说明:</strong> 控制页面中翻译的词组比例，例如选择50%时，100个词组只会翻译其中的50个
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>翻译服务</h3>
+
+            <div class="form-group">
                 <label for="transMode">翻译模式:</label>
                 <select id="transMode">
                     <option value="1">顺序</option>
@@ -114,21 +146,6 @@
                 <input type="number" id="transInterval" min="0" value="1000">
             </div>
 
-            <div class="form-group">
-                <label for="translationFormat">翻译格式:</label>
-                <select id="translationFormat">
-                    <option value="bracket">[中文|翻译]</option>
-                    <option value="parenthesis">(中文|翻译)</option>
-                    <option value="colon">中文: 翻译</option>
-                </select>
-                <div style="margin-top: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 3px; font-size: 12px;">
-                    <strong>预览效果:</strong> <span id="formatPreview">中文词组[Chinese phrase]</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h3>翻译服务</h3>
             <div class="form-group">
                 <label for="provider">翻译服务:</label>
                 <select id="provider">
@@ -146,7 +163,8 @@
                     <input id="youdaoAppKey" placeholder="应用ID (AppKey)"/>
                     <input id="youdaoAppSecret" placeholder="应用密钥 (AppSecret)"/>
                 </div>
-                <p style="margin-top:8px; color:#666; font-size:12px;">提示：请在有道云翻译开放平台申请应用获取AppKey和AppSecret。</p>
+                <p style="margin-top:8px; color:#666; font-size:12px;">
+                    提示：请在有道云翻译开放平台申请应用获取AppKey和AppSecret。</p>
             </div>
 
             <!-- 阿里云翻译配置 -->
@@ -158,11 +176,27 @@
                     <input id="aliyunAccessKeySecret" placeholder="访问密钥 (AccessKeySecret)"/>
                     <input id="aliyunRegion" placeholder="地域，例如：cn-hangzhou" value="cn-hangzhou"/>
                 </div>
-                <p style="margin-top:8px; color:#666; font-size:12px;">提示：请在阿里云控制台获取AccessKeyId和AccessKeySecret。</p>
+                <p style="margin-top:8px; color:#666; font-size:12px;">
+                    提示：请在阿里云控制台获取AccessKeyId和AccessKeySecret。</p>
             </div>
         </div>
 
-        <div class="status" id="status"></div>
+
+        <div class="section">
+            <h3>翻译缓存</h3>
+
+            <div class="form-group">
+                <label for="transCache">启用缓存:</label>
+                <select id="transCache">
+                    <option value="1">启用</option>
+                    <option value="2">关闭</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <button id="tranClean" class="button">清空缓存</button>
+            </div>
+        </div>
 
         <script src="options.js"></script>
     </body>

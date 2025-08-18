@@ -9,6 +9,8 @@ const defaultConfig = {
     provider: 'google',
     transMode: '1',
     transInterval: '1000',
+    translationRatio: '100',
+    transCache: '1',
     // 有道云翻译配置
     youdaoUrl: '',
     youdaoAppKey: '',
@@ -41,6 +43,8 @@ function loadConfig() {
         document.getElementById('provider').value = config.provider || 'google';
         document.getElementById('transMode').value = config.transMode
         document.getElementById('transInterval').value = config.transInterval
+        document.getElementById('translationRatio').value = config.translationRatio;
+        document.getElementById('transCache').value = config.transCache;
 
         // 有道云翻译配置
         document.getElementById('youdaoUrl').value = config.youdaoUrl || '';
@@ -81,6 +85,8 @@ function saveConfig() {
         provider: document.getElementById('provider').value,
         transMode: document.getElementById('transMode').value,
         transInterval: document.getElementById('transInterval').value,
+        translationRatio: document.getElementById('translationRatio').value,
+        transCache: document.getElementById('transCache').value,
 
         // 有道云翻译配置
         youdaoUrl: document.getElementById('youdaoUrl').value.trim(),
@@ -139,11 +145,23 @@ function init() {
     document.getElementById('translationFormat').addEventListener('change', updateFormatPreview);
     document.getElementById('transMode').addEventListener('change', saveConfig);
     document.getElementById('transInterval').addEventListener('change', saveConfig);
+    document.getElementById('translationRatio').addEventListener('change', saveConfig);
+    document.getElementById('transCache').addEventListener('change', saveConfig);
 
     document.getElementById('provider').addEventListener('change', () => {
         toggleProviderSection();
         saveConfig();
     });
+
+    document.getElementById('tranClean').addEventListener("click",()=>{
+        chrome.tabs.query({}, (tabs) => {
+            tabs.forEach(tab => {
+                if (tab.id) chrome.tabs.sendMessage(tab.id, {type: 'tran_clean'}, () => {
+                    showStatus('缓存已清理');
+                });
+            });
+        });
+    })
 
     // 有道云翻译配置字段监听
     ['youdaoUrl', 'youdaoAppKey', 'youdaoAppSecret']

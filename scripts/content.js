@@ -15,7 +15,8 @@
         translationCache: new Map(), targetLanguage: 'en', translationFormat: 'bracket', // 翻译格式：bracket, parenthesis, colon
         provider: 'google', // 有道云翻译配置
         youdaoUrl: '', youdaoAppKey: '', youdaoAppSecret: '', // 阿里云翻译配置
-        aliyunUrl: '', aliyunAccessKeyId: '', aliyunAccessKeySecret: '', aliyunRegion: 'cn-hangzhou'
+        aliyunUrl: '', aliyunAccessKeyId: '', aliyunAccessKeySecret: '', aliyunRegion: 'cn-hangzhou',
+        translationRatio: 100, transCache: 1
     };
 
     // 在窗口作用域放一个开关，默认启用
@@ -32,7 +33,8 @@
                 targetLanguage: 'en', translationFormat: 'bracket', provider: 'google', // 有道云翻译配置
                 transMode: '1', transInterval: '1000',
                 youdaoUrl: '', youdaoAppKey: '', youdaoAppSecret: '', // 阿里云翻译配置
-                aliyunUrl: '', aliyunAccessKeyId: '', aliyunAccessKeySecret: '', aliyunRegion: 'cn-hangzhou'
+                aliyunUrl: '', aliyunAccessKeyId: '', aliyunAccessKeySecret: '', aliyunRegion: 'cn-hangzhou',
+                translationRatio: 100, transCache: 1
             }, (items) => {
                 config.targetLanguage = items.targetLanguage || 'en';
                 config.translationFormat = items.translationFormat || 'bracket';
@@ -51,6 +53,10 @@
                 config.aliyunAccessKeyId = items.aliyunAccessKeyId || '';
                 config.aliyunAccessKeySecret = items.aliyunAccessKeySecret || '';
                 config.aliyunRegion = items.aliyunRegion || 'cn-hangzhou';
+
+                // 翻译比例
+                config.translationRatio = items.translationRatio || 100;
+                config.transCache = items.transCache || 1;
 
                 resolve();
             });
@@ -323,13 +329,23 @@
         throw new Error('阿里云翻译失败');
     }
 
+    let count = 1
+
     /**
      * 翻译中文词
      */
     async function translateToken(token) {
-        if (config.translationCache.has(token)) {
+        if (config.transCache == 1 && config.translationCache.has(token)) {
             return config.translationCache.get(token);
         }
+
+        //计算翻译比例
+        if (100 / config.translationRatio > count) {
+            count++
+            return token
+        }
+        count = 1 //重置
+
         try {
             let translation;
             switch (config.provider) {
@@ -352,8 +368,12 @@
                     translation = await translateWithGoogle(token, config.targetLanguage);
                     break;
             }
-            config.translationCache.set(token, translation);
-            chrome.storage.local.set({[token]: translation});
+
+            if (config.transCache == 1) {
+                config.translationCache.set(token, translation);
+                chrome.storage.local.set({[token]: translation});
+            }
+
             return translation;
         } catch (error) {
             return token;
@@ -583,7 +603,7 @@
         // 监听配置变化
         chrome.storage.onChanged.addListener((changes, namespace) => {
             if (namespace === 'sync') {
-                if (changes.targetLanguage || changes.translationFormat || changes.transMode || changes.transInterval) {
+                if (changes.targetLanguage || changes.translationFormat || changes.transMode || changes.transInterval || changes.translationRatio) {
                     if (changes.targetLanguage) {
                         clearTranslationCache();//清空翻译的缓存
                     }
@@ -620,6 +640,9 @@
                 return true;
             } else if (message.type === 'refresh_config') {
                 loadUserConfig().then(() => sendResponse({ok: true}));
+                return true;
+            } else if (message.type === 'tran_clean') {
+                clearTranslationCache();//清空翻译的缓存
                 return true;
             }
         });
