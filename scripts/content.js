@@ -359,7 +359,7 @@
         });
         const data = await resp.data;
         if (data && (data.Data && data.Data.Translated || data.Translated)) {
-            console.log('aliyun res:',data.Translated)
+            console.log('aliyun res:', data.Translated)
             return (data.Data && data.Data.Translated) || data.Translated;
         }
         throw new Error('阿里云翻译失败');
@@ -378,8 +378,14 @@
         }
         count = 1 //重置
 
+        //缓存
         if (config.transCache == 1 && config.translationCache.has(token)) {
             return config.translationCache.get(token);
+        }
+
+        //延迟,避免大量请求报错
+        if (config.transMode == 1) {
+            await sleep(config.transInterval)
         }
 
         try {
@@ -435,10 +441,6 @@
         for (const token of uniqueTokens) {
             const translation = await translateToken(token);
             translations.push(translation);
-
-            if (config.transMode == 1) {
-                await sleep(config.transInterval)
-            }
         }
 
         const tokenToTrans = new Map(uniqueTokens.map((t, i) => [t, translations[i]]));
