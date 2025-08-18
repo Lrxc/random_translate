@@ -10,7 +10,8 @@
     const config = {
         translateAPI: {
             google: 'https://translate.googleapis.com/translate_a/single'
-        }, chineseBlockRegex: /[\u4e00-\u9fa5]+/g, // 连续中文块
+        },
+        chineseBlockRegex: /[\u4e00-\u9fa5]+/g, // 连续中文块
         chineseWordMinLen: 2, // 中文词最小长度（2表示更偏向"词组"）
         translationCache: new Map(), targetLanguage: 'en', translationFormat: 'bracket', // 翻译格式：bracket, parenthesis, colon
         provider: 'google', // 有道云翻译配置
@@ -214,13 +215,6 @@
     }
 
     /**
-     * 检测文本是否包含中文
-     */
-    function containsChinese(text) {
-        return /[\u4e00-\u9fa5]/.test(text);
-    }
-
-    /**
      * 使用 Google 翻译 API 翻译文本（zh -> targetLanguage）
      */
     async function translateWithGoogle(text, targetLang) {
@@ -292,7 +286,10 @@
         // 为演示目的，采用简单的 HMAC-SHA1 占位签名；若接口要求更复杂的签名，请替换。
         async function hmacSha1Base64(key, str) {
             const enc = new TextEncoder();
-            const cryptoKey = await crypto.subtle.importKey('raw', enc.encode(key), {name: 'HMAC', hash: 'SHA-1'}, false, ['sign']);
+            const cryptoKey = await crypto.subtle.importKey('raw', enc.encode(key), {
+                name: 'HMAC',
+                hash: 'SHA-1'
+            }, false, ['sign']);
             const sig = await crypto.subtle.sign('HMAC', cryptoKey, enc.encode(str));
             const bytes = new Uint8Array(sig);
             let binary = '';
@@ -428,38 +425,11 @@
         if (window.chineseTranslatorEnabled === false) return;
         const original = textNode.textContent;
         if (!original || !original.trim()) return;
-        // 已处理过的（包含我们使用的标记），跳过
-        if (containsTranslationMarkers(original)) return;
-        if (!containsChinese(original)) return;
 
-        // 遍历中文块进行替换
-        const parts = [];
-        let lastIndex = 0;
-        const regex = config.chineseBlockRegex;
-        regex.lastIndex = 0;
-
-        let match;
-        while ((match = regex.exec(original)) !== null) {
-            const start = match.index;
-            const end = regex.lastIndex;
-            if (start > lastIndex) {
-                parts.push({type: 'plain', text: original.slice(lastIndex, start)});
-            }
-            const blockText = original.slice(start, end);
-            // 顺序翻译每个中文块
-            const translated = await translateChineseBlock(blockText);
-            parts.push({type: 'cn', text: translated});
-            lastIndex = end;
-        }
-        if (lastIndex < original.length) {
-            parts.push({type: 'plain', text: original.slice(lastIndex)});
-        }
-        if (parts.length === 0) return;
-
-        const combined = parts.map(p => p.text).join('');
-        if (combined !== original) {
-            renderFormattedWithColor(textNode, combined);
-        }
+        // 顺序翻译每个中文块
+        const translated = await translateChineseBlock(original);
+        //渲染替换
+        renderFormattedWithColor(textNode, translated);
     }
 
     async function sleep(ms) {
