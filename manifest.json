@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "随机学英语",
+  "name": "随机单词",
   "version": "1.0",
   "description": "将中文词组翻译为目标语言",
   "permissions": [
@@ -10,9 +10,9 @@
   ],
   "host_permissions": [
     "https://translate.googleapis.com/*",
-    "https://api.fanyi.baidu.com/*",
     "https://openapi.youdao.com/*",
-    "https://mt.aliyuncs.com/*"
+    "https://mt.aliyuncs.com/*",
+    "*://*/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",

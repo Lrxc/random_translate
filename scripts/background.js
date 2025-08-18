@@ -25,6 +25,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
+// 网络请求,绕过CORS
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.type === 'fetchUrl') {
+        fetch(request.url, request.data)
+            .then(res => res.json())
+            .then(res => sendResponse({success: true, data: res}))
+            .catch(error => sendResponse({success: false, error: error}));
+        return true; // 保持消息通道开放以支持异步响应
+    }
+});
+
 // 监听标签页更新
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && tab.url && tab.url.startsWith('http')) {

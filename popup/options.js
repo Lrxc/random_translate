@@ -161,7 +161,7 @@ function init() {
                 });
             });
         });
-    })
+    });
 
     // 有道云翻译配置字段监听
     ['youdaoUrl', 'youdaoAppKey', 'youdaoAppSecret']

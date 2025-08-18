@@ -13,11 +13,19 @@
         },
         chineseBlockRegex: /[\u4e00-\u9fa5]+/g, // 连续中文块
         chineseWordMinLen: 2, // 中文词最小长度（2表示更偏向"词组"）
-        translationCache: new Map(), targetLanguage: 'en', translationFormat: 'bracket', // 翻译格式：bracket, parenthesis, colon
+        translationCache: new Map(),
+        targetLanguage: 'en',
+        translationFormat: 'bracket', // 翻译格式：bracket, parenthesis, colon
         provider: 'google', // 有道云翻译配置
-        youdaoUrl: '', youdaoAppKey: '', youdaoAppSecret: '', // 阿里云翻译配置
-        aliyunUrl: '', aliyunAccessKeyId: '', aliyunAccessKeySecret: '', aliyunRegion: 'cn-hangzhou',
-        translationRatio: 100, transCache: 1
+        youdaoUrl: '',
+        youdaoAppKey: '',
+        youdaoAppSecret: '', // 阿里云翻译配置
+        aliyunUrl: '',
+        aliyunAccessKeyId: '',
+        aliyunAccessKeySecret: '',
+        aliyunRegion: 'cn-hangzhou',
+        translationRatio: 100,
+        transCache: 1
     };
 
     // 在窗口作用域放一个开关，默认启用
@@ -31,11 +39,20 @@
     function loadUserConfig() {
         return new Promise((resolve) => {
             chrome.storage.sync.get({
-                targetLanguage: 'en', translationFormat: 'bracket', provider: 'google', // 有道云翻译配置
-                transMode: '1', transInterval: '1000',
-                youdaoUrl: '', youdaoAppKey: '', youdaoAppSecret: '', // 阿里云翻译配置
-                aliyunUrl: '', aliyunAccessKeyId: '', aliyunAccessKeySecret: '', aliyunRegion: 'cn-hangzhou',
-                translationRatio: 100, transCache: 1
+                targetLanguage: 'en',
+                translationFormat: 'bracket',
+                provider: 'google', // 有道云翻译配置
+                transMode: '1',
+                transInterval: '1000',
+                youdaoUrl: '',
+                youdaoAppKey: '',
+                youdaoAppSecret: '', // 阿里云翻译配置
+                aliyunUrl: '',
+                aliyunAccessKeyId: '',
+                aliyunAccessKeySecret: '',
+                aliyunRegion: 'cn-hangzhou',
+                translationRatio: 100,
+                transCache: 1
             }, (items) => {
                 config.targetLanguage = items.targetLanguage || 'en';
                 config.translationFormat = items.translationFormat || 'bracket';
@@ -219,9 +236,16 @@
      */
     async function translateWithGoogle(text, targetLang) {
         const url = `${config.translateAPI.google}?client=gtx&sl=zh&tl=${encodeURIComponent(targetLang)}&dt=t&q=${encodeURIComponent(text)}`;
-        const response = await fetch(url);
-        const data = await response.json();
+        // const response = await fetch(url);
+        // const data = await response.json();
+        console.log("google:", text)
+        const resp = await chrome.runtime.sendMessage({
+            type: "fetchUrl", url: url
+        });
+        const data = await resp.data;
+
         if (data && data[0] && data[0][0]) {
+            console.log("google res:", data[0][0][0])
             return data[0][0][0];
         }
         throw new Error('翻译结果格式错误');
@@ -268,11 +292,19 @@
         form.set('signType', 'v3');
         form.set('curtime', curtime);
 
-        const resp = await fetch(config.youdaoUrl, {
-            method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: form.toString()
+        console.log("youdao:", text)
+        // const resp = await fetch(config.youdaoUrl, {
+        //     method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: form.toString()
+        // });
+        // const data = await resp.json();
+        const resp = await chrome.runtime.sendMessage({
+            type: "fetchUrl", url: config.youdaoUrl, data: {
+                method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: form.toString()
+            }
         });
-        const data = await resp.json();
+        const data = await resp.data;
         if (data && data.translation && data.translation[0]) {
+            console.log("youdao res:", data.translation[0])
             return data.translation[0];
         }
         throw new Error('有道翻译失败');
@@ -287,8 +319,7 @@
         async function hmacSha1Base64(key, str) {
             const enc = new TextEncoder();
             const cryptoKey = await crypto.subtle.importKey('raw', enc.encode(key), {
-                name: 'HMAC',
-                hash: 'SHA-1'
+                name: 'HMAC', hash: 'SHA-1'
             }, false, ['sign']);
             const sig = await crypto.subtle.sign('HMAC', cryptoKey, enc.encode(str));
             const bytes = new Uint8Array(sig);
@@ -316,11 +347,19 @@
         const signature = await hmacSha1Base64(config.aliyunAccessKeySecret + '&', signStr);
         params.set('Signature', signature);
 
-        const resp = await fetch(config.aliyunUrl, {
-            method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: params.toString()
+        // const resp = await fetch(config.aliyunUrl, {
+        //     method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: params.toString()
+        // });
+        // const data = await resp.json();
+        console.log("aliyun:", text)
+        const resp = await chrome.runtime.sendMessage({
+            type: "fetchUrl", url: config.aliyunUrl, data: {
+                method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: params.toString()
+            }
         });
-        const data = await resp.json();
+        const data = await resp.data;
         if (data && (data.Data && data.Data.Translated || data.Translated)) {
+            console.log('aliyun res:',data.Translated)
             return (data.Data && data.Data.Translated) || data.Translated;
         }
         throw new Error('阿里云翻译失败');
