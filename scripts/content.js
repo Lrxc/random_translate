@@ -335,16 +335,16 @@
      * 翻译中文词
      */
     async function translateToken(token) {
-        if (config.transCache == 1 && config.translationCache.has(token)) {
-            return config.translationCache.get(token);
-        }
-
         //计算翻译比例
         if (100 / config.translationRatio > count) {
             count++
             return token
         }
         count = 1 //重置
+
+        if (config.transCache == 1 && config.translationCache.has(token)) {
+            return config.translationCache.get(token);
+        }
 
         try {
             let translation;
