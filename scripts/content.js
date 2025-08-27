@@ -33,6 +33,11 @@
         window.chineseTranslatorEnabled = true;
     }
 
+    // 获取当前页面的域名作为标识
+    function getCurrentPageKey() {
+        return window.location.hostname || window.location.href;
+    }
+
     /**
      * 从同步存储读取用户配置
      */
@@ -577,15 +582,33 @@
     /** 全局启用状态持久化（针对全部网页） */
     function syncEnabledFromStorage() {
         return new Promise((resolve) => {
-            chrome.storage.local.get({globalEnabled: true}, ({globalEnabled}) => {
-                window.chineseTranslatorEnabled = globalEnabled !== false;
+            const pageKey = getCurrentPageKey();
+            chrome.storage.local.get({
+                globalEnabled: true,
+                [`pageEnabled_${pageKey}`]: null
+            }, (items) => {
+                // 如果有页面级设置，优先使用页面级设置
+                if (items[`pageEnabled_${pageKey}`] !== null) {
+                    window.chineseTranslatorEnabled = items[`pageEnabled_${pageKey}`];
+                } else {
+                    // 否则使用全局设置
+                    window.chineseTranslatorEnabled = items.globalEnabled !== false;
+                }
                 resolve(window.chineseTranslatorEnabled);
             });
         });
     }
 
     function persistEnabled(enabled) {
-        chrome.storage.local.set({globalEnabled: !!enabled});
+        const pageKey = getCurrentPageKey();
+        chrome.storage.local.set({
+            [`pageEnabled_${pageKey}`]: !!enabled
+        });
+    }
+
+    function resetPageEnabled() {
+        const pageKey = getCurrentPageKey();
+        chrome.storage.local.remove(`pageEnabled_${pageKey}`);
     }
 
     /**
@@ -640,13 +663,41 @@
                 window.chineseTranslatorEnabled = !window.chineseTranslatorEnabled;
                 persistEnabled(window.chineseTranslatorEnabled);
                 processPageText();
-                sendResponse({enabled: window.chineseTranslatorEnabled});
+                sendResponse({enabled: window.chineseTranslatorEnabled, isPageLevel: true});
+            } else if (message.type === 'toggle_global_translation') {
+                // 全局开关切换
+                chrome.storage.local.get({globalEnabled: true}, ({globalEnabled}) => {
+                    const newGlobalEnabled = !globalEnabled;
+                    chrome.storage.local.set({globalEnabled: newGlobalEnabled});
+                    // 如果当前页面没有独立设置，同步更新当前页面状态
+                    const pageKey = getCurrentPageKey();
+                    chrome.storage.local.get(`pageEnabled_${pageKey}`, (items) => {
+                        if (items[`pageEnabled_${pageKey}`] === undefined) {
+                            window.chineseTranslatorEnabled = newGlobalEnabled;
+                            processPageText();
+                        }
+                        sendResponse({enabled: newGlobalEnabled, isPageLevel: false});
+                    });
+                });
+                return true;
             } else if (message.type === 'refresh_translation') {
                 processPageText();
                 sendResponse({ok: true});
             } else if (message.type === 'get_status') {
                 syncEnabledFromStorage().then((enabled) => {
-                    sendResponse({enabled});
+                    const pageKey = getCurrentPageKey();
+                    chrome.storage.local.get({
+                        globalEnabled: true,
+                        [`pageEnabled_${pageKey}`]: null
+                    }, (items) => {
+                        const hasPageSetting = items[`pageEnabled_${pageKey}`] !== null;
+                        sendResponse({
+                            enabled: enabled,
+                            globalEnabled: items.globalEnabled,
+                            hasPageSetting: hasPageSetting,
+                            pageKey: pageKey
+                        });
+                    });
                 });
                 return true;
             } else if (message.type === 'refresh_config') {
